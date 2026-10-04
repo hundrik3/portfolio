@@ -1,4 +1,4 @@
-[README.md](https://github.com/user-attachments/files/33028743/README.md)
+
 # Maps Prospector
 
 Go-приложение для поиска бизнесов в Яндекс Картах, проверки ссылки на сайт и автоматического создания очереди обращений.
