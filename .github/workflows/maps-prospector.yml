@@ -9,7 +9,11 @@ on:
       - '.github/workflows/maps-prospector.yml'
 
 permissions:
-  contents: read
+  contents: write
+
+concurrency:
+  group: maps-prospector-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   windows:
@@ -40,3 +44,9 @@ jobs:
           path: maps-prospector/package/maps-prospector-windows.zip
           retention-days: 14
           if-no-files-found: error
+      - name: Publish direct Windows download
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create maps-prospector-v0.1.0 package/maps-prospector-windows.zip --target "$env:GITHUB_SHA" --title "Maps Prospector 0.1.0 (experimental)" --notes-file README.md
