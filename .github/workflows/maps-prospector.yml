@@ -1,0 +1,42 @@
+name: Build Maps Prospector for Windows
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [maps-prospector-delivery]
+    paths:
+      - 'maps-prospector/**'
+      - '.github/workflows/maps-prospector.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    defaults:
+      run:
+        working-directory: maps-prospector
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.27.1'
+          cache-dependency-path: maps-prospector/go.sum
+      - name: Test application
+        run: go test -buildvcs=false -p 2 -v ./...
+      - name: Build executable
+        run: go build -trimpath -buildvcs=false -p 2 -o windows/maps-prospector.exe .
+      - name: Package Windows application
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path package/maps-prospector | Out-Null
+          Copy-Item windows/maps-prospector.exe,windows/*.cmd,README.md,THIRD_PARTY_NOTICES.txt -Destination package/maps-prospector
+          Compress-Archive -Path package/maps-prospector -DestinationPath package/maps-prospector-windows.zip
+      - name: Upload downloadable archive
+        uses: actions/upload-artifact@v4
+        with:
+          name: maps-prospector-windows
+          path: maps-prospector/package/maps-prospector-windows.zip
+          retention-days: 14
+          if-no-files-found: error

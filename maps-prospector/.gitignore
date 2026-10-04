@@ -1,0 +1,4 @@
+/data/
+/maps-prospector
+*.log
+.env
